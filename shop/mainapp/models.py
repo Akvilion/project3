@@ -62,3 +62,34 @@ class Customer(models.Model):
 
     def __str__(self):
         return f'Покупець {self.user.first_name} {self.user.last_name}'
+
+
+class Notebook(Product):
+
+    diagonal = models.CharField(max_length=255, verbose_name='Діагональ')
+    display_type = models.CharField(max_length=255, verbose_name='Тип дисплея')
+    processor_freq = models.CharField(max_length=255, verbose_name='Частота проццесора')
+    ram = models.CharField(max_length=255, verbose_name='Оперативна пам\'ять')
+    video = models.CharField(max_length=255, verbose_name='Відеокарта')
+    time_without_charge = models.CharField(max_length=255, verbose_name='Час роботи від акумулятора')
+
+    def __str__(self):
+        return f'{self.category.name} {self.title}'
+
+
+class Smartphone(Product):
+
+    diagonal = models.CharField(max_length=255, verbose_name='Діагональ')
+    display_type = models.CharField(max_length=255, verbose_name='Тип дисплею')
+    resolution = models.CharField(max_length=255, verbose_name='Розширення екрану')
+    accum_volume = models.CharField(max_length=255, verbose_name='Об\'єм батареї')
+    ram = models.CharField(max_length=255, verbose_name='оперативна пам\'ять')
+    sd = models.BooleanField(default=True, verbose_name='Наявність SD карти')
+    sd_volume_max = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name='Максимальний об\'єм оперативної пам\'яті'
+    )
+    main_cam_mp = models.CharField(max_length=255, verbose_name='Головна камера')
+    frontal_cam_mp = models.CharField(max_length=255, verbose_name='Фронтальна камера')
+
+    def __str__(self):
+        return f'{self.category.name} {self.title}'

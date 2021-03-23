@@ -2,9 +2,19 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from PIL import Image
 # Create your models here.
 
+
 User = get_user_model()
+
+
+class MinResolutionErrorException(Exception):
+    pass
+
+
+class MaxResolutionErrorException(Exception):
+    pass
 
 
 class Category(models.Model):
@@ -18,6 +28,10 @@ class Category(models.Model):
 
 class Product(models.Model):
 
+    MIN_RESOLUTION = (400, 400)
+    MAX_RESOLUTION = (2000, 2000)
+    MAX_IMAGE_SIZE = 3145728
+
     class Meta:
         abstract = True
 
@@ -27,6 +41,19 @@ class Product(models.Model):
     image = models.ImageField()
     description = models.TextField(verbose_name='Опис', null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Ціна')
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        image = self.image
+        img = Image.open(image)
+        min_height, min_width = self.MIN_RESOLUTION
+        max_height, max_width = self.MAX_RESOLUTION
+        if img.height < min_height or img.widrh < min_width:
+            raise MinResolutionErrorException('Розширення картинки менше мінімального!')
+        if img.height > min_height or img.widrh > min_width:
+            raise MaxResolutionErrorException('Розширення картинки більше максимального!')
 
 
 class CartProduct(models.Model):

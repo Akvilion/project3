@@ -3,6 +3,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
 # Create your models here.
 
 
@@ -46,14 +49,24 @@ class Product(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        # image = self.image
+        # img = Image.open(image)
+        # min_height, min_width = self.MIN_RESOLUTION
+        # max_height, max_width = self.MAX_RESOLUTION
+        # if img.height < min_height or img.width < min_width:
+        #     raise MinResolutionErrorException('Розширення картинки менше мінімального!')
+        # if img.height > min_height or img.widrh > min_width:
+        #     raise MaxResolutionErrorException('Розширення картинки більше максимального!')
         image = self.image
         img = Image.open(image)
-        min_height, min_width = self.MIN_RESOLUTION
-        max_height, max_width = self.MAX_RESOLUTION
-        if img.height < min_height or img.widrh < min_width:
-            raise MinResolutionErrorException('Розширення картинки менше мінімального!')
-        if img.height > min_height or img.widrh > min_width:
-            raise MaxResolutionErrorException('Розширення картинки більше максимального!')
+        new_img = img.convert('RGB')
+        resized_new_img = new_img.resize((600, 600), Image.ANTIALIAS)
+        filestream = BytesIO()
+        resized_new_img.save(filestream, 'JPEG', quality=90)
+        resized_new_img.seek(0)
+        name = '{}.{}'.format(*self.image.name.split('.'))
+        self.image = InMemoryUploadedFile(filestream, 'ImageField', name, 'jpeg/image', sys.getsizeof(filestream), None)
+        super().save(*args, **kwargs)
 
 
 class CartProduct(models.Model):
